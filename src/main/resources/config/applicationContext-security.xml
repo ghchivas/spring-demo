@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" 
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+		xmlns:security="http://www.springframework.org/schema/security" 
+		xsi:schemaLocation="http://www.springframework.org/schema/beans       
+					http://www.springframework.org/schema/beans/spring-beans.xsd       
+					http://www.springframework.org/schema/security       
+					http://www.springframework.org/schema/security/spring-security-3.2.xsd" >
+	<security:http auto-config="true" use-expressions="true" authentication-manager-ref="authenticationManager">
+		<security:intercept-url pattern="/user/**" access="hasRole('1')"/>
+		<security:intercept-url pattern="/**" access="permitAll" />
+		<security:form-login login-page="/login.jsp" login-processing-url="/j_spring_security_check.html" authentication-failure-url="/login.jsp?authfailed=true" default-target-url="/security.jsp" />
+		<security:logout invalidate-session="true" logout-success-url="/login.jsp?loggedout=true" logout-url="/logout.html"/>
+	</security:http>
+	<security:authentication-manager alias="authenticationManager">
+		<security:authentication-provider>
+			<security:password-encoder hash="bcrypt"/>
+			<security:jdbc-user-service 
+				data-source-ref="dataSource" 
+				users-by-username-query="select u.username, u.password, 1 as ENABLED from users u where UPPER(u.username) = UPPER(?)" 
+				authorities-by-username-query="select u.username, u.user_role as authority from users u where UPPER(u.username) = UPPER(?)"
+			/>
+		</security:authentication-provider>
+	</security:authentication-manager>
+</beans>
